@@ -1,5 +1,3 @@
-/*This source code copyrighted by Lazy Foo' Productions (2004-2015)
-and may not be redistributed without written permission.*/
 
 //Using SDL, standard IO, and strings
 #include <SDL2/SDL.h>
@@ -142,93 +140,108 @@ void close()
 
 SDL_Surface* loadSurface( std::string path )
 {
-	//Load image at specified path
-	SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
-	if( loadedSurface == NULL )
-	{
-		printf( "Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
-	}
+  //The final optimized image
+  SDL_Surface* optimizedSurface = NULL;
+  //Load image at specified path
+  SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
+  if( loadedSurface == NULL )
+  {
+    printf( "Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+  } else {
+    //Convert surface to screen format
+    optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
+    if(optimizedSurface == NULL){
+      printf( "Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+    }
+    //Get rid of old loaded surface
+    SDL_FreeSurface(loadedSurface);
+  }
 
-	return loadedSurface;
+  return optimizedSurface;
 }
 
 
 int main( int argc, char* args[] )
 {
-	//Start up SDL and create window
-	if( !init() )
-	{
-		printf( "Failed to initialize!\n" );
-	}
-	else
-	{
-		//Load media
-		if( !loadMedia() )
-		{
-			printf( "Failed to load media!\n" );
-		}
-		else
-		{	
-			//Main loop flag
-			bool quit = false;
+  //Start up SDL and create window
+  if( !init() )
+  {
+    printf( "Failed to initialize!\n" );
+  }
+  else
+  {
+    //Load media
+    if( !loadMedia() )
+    {
+      printf( "Failed to load media!\n" );
+    }
+    else
+    {	
+      //Main loop flag
+      bool quit = false;
 
-			//Event handler
-			SDL_Event e;
+      //Event handler
+      SDL_Event e;
 
-			//Set default current surface
-			gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
+      //Set default current surface
+      gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
 
-			//While application is running
-			while( !quit )
-			{
-				//Handle events on queue
-				while( SDL_PollEvent( &e ) != 0 )
-				{
-					//User requests quit
-					if( e.type == SDL_QUIT )
-					{
-						quit = true;
-					}
-					//User presses a key
-					else if( e.type == SDL_KEYDOWN )
-					{
-						//Select surfaces based on key press
-						switch( e.key.keysym.sym )
-						{
-							case SDLK_UP:
-							gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_UP ];
-							break;
+      //While application is running
+      while( !quit )
+      {
+        //Handle events on queue
+        while( SDL_PollEvent( &e ) != 0 )
+        {
+          //User requests quit
+          if( e.type == SDL_QUIT )
+          {
+                  quit = true;
+          }
+          //User presses a key
+          else if( e.type == SDL_KEYDOWN )
+          {
+            //Select surfaces based on key press
+            switch( e.key.keysym.sym )
+            {
+              case SDLK_UP:
+              gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_UP ];
+              break;
 
-							case SDLK_DOWN:
-							gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ];
-							break;
+              case SDLK_DOWN:
+              gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ];
+              break;
 
-							case SDLK_LEFT:
-							gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
-							break;
+              case SDLK_LEFT:
+              gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
+              break;
 
-							case SDLK_RIGHT:
-							gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
-							break;
+              case SDLK_RIGHT:
+              gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
+              break;
 
-							default:
-							gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
-							break;
-						}
-					}
-				}
+              default:
+              gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
+              break;
+            }
+          }
+        }
 
-				//Apply the current image
-				SDL_BlitSurface( gCurrentSurface, NULL, gScreenSurface, NULL );
-			
-				//Update the surface
-				SDL_UpdateWindowSurface( gWindow );
-			}
-		}
-	}
+        //Apply the image stretched
+        SDL_Rect stretchRect;
+        stretchRect.x = 0;
+        stretchRect.y = 0;
+        stretchRect.w = SCREEN_WIDTH;
+        stretchRect.h = SCREEN_HEIGHT;
+        SDL_BlitScaled(gCurrentSurface, NULL, gScreenSurface, &stretchRect);
 
-	//Free resources and close SDL
-	close();
+        //Update the surface
+        SDL_UpdateWindowSurface( gWindow );
+      }
+    }
+  }
 
-	return 0;
+  //Free resources and close SDL
+  close();
+
+  return 0;
 }
