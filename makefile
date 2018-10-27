@@ -1,5 +1,5 @@
 #OBJS specifies which files to compile as part of the project
-OBJS = key_presses.cpp
+OBJS = test.cpp
 
 #CC specifies which compiler we're using
 CC = g++
@@ -9,10 +9,10 @@ CC = g++
 COMPILER_FLAGS = -w
 
 #LINKER_FLAGS specifies the libraries we're linking against
-LINKER_FLAGS = -lSDL2
+LINKER_FLAGS = -lSDL2 -lSDL2_image
 
 #OBJ_NAME specifies the name of our executable
-OBJ_NAME = key_presses
+OBJ_NAME = test
 
 #This is the target that compiles our executable
 all : $(OBJS)

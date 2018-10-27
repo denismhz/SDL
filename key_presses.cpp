@@ -1,6 +1,7 @@
 
 //Using SDL, standard IO, and strings
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <string>
 
@@ -45,32 +46,32 @@ SDL_Surface* gCurrentSurface = NULL;
 
 bool init()
 {
-	//Initialization flag
-	bool success = true;
+  //Initialization flag
+  bool success = true;
 
-	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-	{
-		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
-		success = false;
-	}
-	else
-	{
-		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-		if( gWindow == NULL )
-		{
-			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
-			success = false;
-		}
-		else
-		{
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface( gWindow );
-		}
-	}
+  //Initialize SDL
+  if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+  {
+    printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+    success = false;
+  }
+  else
+  {
+    //Create window
+    gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+    if( gWindow == NULL )
+    {
+      printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+      success = false;
+    }
+    else
+    {
+      //Get window surface
+      gScreenSurface = SDL_GetWindowSurface( gWindow );
+    }
+  }
 
-	return success;
+  return success;
 }
 
 bool loadMedia()
