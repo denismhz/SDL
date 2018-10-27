@@ -8,6 +8,9 @@ SDL_Event event;
 SDL_Renderer* renderer = NULL;
 SDL_Texture* texture = NULL;
 
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
+
 SDL_Texture* loadTexture(std::string path){
   SDL_Texture* newTexture = NULL;
 
@@ -35,7 +38,7 @@ bool init(){
       printf("Warning: Linear texture filtering not enabled");
     }
     window = SDL_CreateWindow("WWW", SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+        SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if(window == NULL){
       printf("SDL_Error: %s\n", SDL_GetError());
       success = false;
@@ -45,7 +48,6 @@ bool init(){
         printf("SDL_Error: %s\n", SDL_GetError());
         success = false;
       } else {
-        SDL_SetRenderDrawColor(renderer, 0,0xFF,0xFF, 0xFF);
         int imgFlags = IMG_INIT_PNG;
         if(!(IMG_Init(imgFlags) & imgFlags)){
           printf("IMG_Error: %s\n", IMG_GetError());
@@ -60,11 +62,6 @@ bool init(){
 bool loadMedia(){
   bool success = true;
 
-  texture = loadTexture("texture.png");
-  if(texture == NULL){
-    printf("Failed to load texture image\n");
-    success = false;
-  }
   return success;
 }
 
@@ -93,8 +90,26 @@ int main(int argc, char* argv[]){
             quit = true;
           }
         }
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_Rect fillRect = {SCREEN_WIDTH/4, SCREEN_HEIGHT/4, 
+          SCREEN_WIDTH/2, SCREEN_HEIGHT/2};
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 122);
+        SDL_RenderFillRect(renderer, &fillRect);
+
+        SDL_Rect outlineRect = {SCREEN_WIDTH/6, SCREEN_HEIGHT/6,
+          SCREEN_WIDTH*2/3, SCREEN_HEIGHT*2/3};
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderDrawRect(renderer, &outlineRect);
+
+        SDL_SetRenderDrawColor(renderer, 0,0, 255, 255);
+        SDL_RenderDrawLine(renderer, 0, SCREEN_HEIGHT/2, 
+            SCREEN_WIDTH, SCREEN_HEIGHT/2);
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        for(int i = 0; i < SCREEN_HEIGHT; i+=4){
+          SDL_RenderDrawPoint(renderer, SCREEN_WIDTH/2, i);
+        }
         SDL_RenderPresent(renderer);
       }
     }
