@@ -2,7 +2,7 @@
 and may not be redistributed without written permission.*/
 
 //Using SDL, standard IO, and strings
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <string>
 
