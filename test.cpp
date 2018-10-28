@@ -13,6 +13,8 @@ class LTexture {
     bool loadFromFile(std::string path);
     //Deallocates texture
     void free();
+    //Set color modulation
+    void setColor(Uint8 red, Uint8 green, Uint8 blue);
     //Renders texture at given point
     void render(int x, int y, SDL_Rect* clip = NULL);
     //Gets image dimensions
@@ -32,12 +34,8 @@ SDL_Window* window = NULL;
 SDL_Event event;
 SDL_Renderer* renderer = NULL;
 
-SDL_Rect gSpriteClips[4];
-
 //Scene textures
-LTexture gFooTexture;
-LTexture gBackgroundTexture;
-LTexture gSpriteSheetTexture;
+LTexture gModulatedTexture;
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -65,8 +63,8 @@ bool LTexture::loadFromFile(std::string path){
     printf("Unable to load image %s! SDL_image_Error: %s\n", path.c_str(), IMG_GetError());
   } else {
     //Color key image
-    SDL_SetColorKey(loadedSurface, SDL_TRUE, 
-        SDL_MapRGB(loadedSurface->format, 0, 255, 255));
+    //SDL_SetColorKey(loadedSurface, SDL_TRUE, 
+    //    SDL_MapRGB(loadedSurface->format, 0, 255, 255));
     //Create Texture from surface pixels
     newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
     if(newTexture==NULL){
@@ -92,6 +90,11 @@ void LTexture::free(){
     mWidth = 0;
     mHeight = 0;
   }
+}
+
+void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue){
+  //Modulate texture
+  SDL_SetTextureColorMod(mTexture, red, green, blue);
 }
 
 void LTexture::render(int x, int y, SDL_Rect* clip){
@@ -147,54 +150,14 @@ bool init(){
 
 bool loadMedia(){
   bool success = true;
-  //Load Foo' texture
-  if(!gFooTexture.loadFromFile("10_color_keying/foo.png")){
-    printf("Feiled to load Foo' texture image!\n");
-    success = false;
-  }
-
-  if(!gSpriteSheetTexture.loadFromFile("11_clip_rendering_and_sprite_sheets/dots.png")){
-    printf("Failed to load sprite sheet texture!\n");
-    success = false;
-  } else {
-    //Set top left sprite
-    gSpriteClips[0].x = 0;
-    gSpriteClips[0].y = 0;
-    gSpriteClips[0].w = 100;
-    gSpriteClips[0].h = 100;
-
-    //Set top right sprite
-    gSpriteClips[1].x = 100;
-    gSpriteClips[1].y = 0;
-    gSpriteClips[1].w = 100;
-    gSpriteClips[1].h = 100;
-
-    //Set bottom left sprite
-    gSpriteClips[2].x = 0;
-    gSpriteClips[2].y = 100;
-    gSpriteClips[2].w = 100;
-    gSpriteClips[2].h = 100;
-
-    //Set bottom right sprite
-    gSpriteClips[3].x = 100;
-    gSpriteClips[3].y = 100;
-    gSpriteClips[3].w = 100;
-    gSpriteClips[3].h = 100;
-  }
-
-  //Load background texture
-  if(!gBackgroundTexture.loadFromFile("10_color_keying/background.png")){
-    printf("Failed to load background texture image!\n");
+  if(!gModulatedTexture.loadFromFile("12_color_modulation/colors.png")){
+    printf("Failed to load file for texture");
     success = false;
   }
   return success;
 }
 
 void close(){
-  gFooTexture.free();
-  gBackgroundTexture.free();
-  gSpriteSheetTexture.free();
-
   SDL_DestroyRenderer(renderer);
   renderer = NULL;
   SDL_DestroyWindow(window);
@@ -211,43 +174,52 @@ int main(int argc, char* argv[]){
       printf("Failed to load media\n");
     } else {
       bool quit = false;
+
+      Uint8 r = 255;
+      Uint8 g = 255;
+      Uint8 b = 255;
       while(!quit){
         while(SDL_PollEvent(&event) != 0){
           if(event.type == SDL_QUIT){
             quit = true;
+          } else if(event.type == SDL_KEYDOWN) {
+            switch(event.key.keysym.sym){
+              //Increase red
+              case SDLK_q:
+                r+=32;
+                break;
+              //Increase green
+              case SDLK_w:
+                g+=32;
+                break;
+              //Increase blue
+              case SDLK_e:
+                b+=32;
+                break;
+              //decrease red
+              case SDLK_a:
+                r-=32;
+                break;
+              //decrease green
+              case SDLK_s:
+                g-=32;
+                break;
+              //decrease blue
+              case SDLK_d:
+                b-=32;
+                break;
+            }
           }
         }
         SDL_SetRenderDrawColor(renderer, 255,255,255,255);
         SDL_RenderClear(renderer);
-
-        //Render background texture to screen
-        gBackgroundTexture.render(0, 0);
-
-        //Render Foo' to the screen
-        gFooTexture.render(240,100);
-
-        //render top left sprite
-        gSpriteSheetTexture.render(0,0, &gSpriteClips[0]);
-
-        //Render top right sprite
-        gSpriteSheetTexture.render(SCREEN_WIDTH - gSpriteClips[1].w, 0, &gSpriteClips[1]);
-
-        //Render bottom left sprite
-        gSpriteSheetTexture.render(0, SCREEN_HEIGHT -gSpriteClips[2].h, &gSpriteClips[2]);
-
-        //Render bottom right sprite
-        gSpriteSheetTexture.render(SCREEN_WIDTH - gSpriteClips[2].w, 
-            SCREEN_HEIGHT - gSpriteClips[3].h, &gSpriteClips[3]);
+        
+        gModulatedTexture.setColor(r, g, b);
+        gModulatedTexture.render(0,0);
   
         SDL_RenderPresent(renderer);
       }
     }
   }
-
-  //Render background texture to screen
-  gBackgroundTexture.render(0, 0);
-
-  //Render Foo' to the screen
-  gFooTexture.render(240,190);
   return 0;
 }
