@@ -15,6 +15,10 @@ class LTexture {
     void free();
     //Set color modulation
     void setColor(Uint8 red, Uint8 green, Uint8 blue);
+    //Set blending
+    void setBlendMode(SDL_BlendMode blending);
+    //Set alpha modulation
+    void setAlpha(Uint8 alpha);
     //Renders texture at given point
     void render(int x, int y, SDL_Rect* clip = NULL);
     //Gets image dimensions
@@ -36,6 +40,7 @@ SDL_Renderer* renderer = NULL;
 
 //Scene textures
 LTexture gModulatedTexture;
+LTexture gBackgroundTexture;
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -97,6 +102,16 @@ void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue){
   SDL_SetTextureColorMod(mTexture, red, green, blue);
 }
 
+void LTexture::setBlendMode(SDL_BlendMode blending){
+  //Set blending function
+  SDL_SetTextureBlendMode(mTexture, blending);
+}
+
+void LTexture::setAlpha(Uint8 alpha){
+  //Modulate texture alpha
+  SDL_SetTextureAlphaMod(mTexture, alpha);
+}
+
 void LTexture::render(int x, int y, SDL_Rect* clip){
   //Set rendering space and render to xcreen
   SDL_Rect renderQuad = {x, y, mWidth, mHeight};
@@ -150,9 +165,19 @@ bool init(){
 
 bool loadMedia(){
   bool success = true;
-  if(!gModulatedTexture.loadFromFile("12_color_modulation/colors.png")){
-    printf("Failed to load file for texture");
+  //Load front alpha texture
+  if(!gModulatedTexture.loadFromFile("13_alpha_blending/fadeout.png")){
+    printf("Failed to load front Texture!\n");
     success = false;
+  } else {
+    //Set standard alpha blending
+    gModulatedTexture.setBlendMode(SDL_BLENDMODE_BLEND);
+  }
+
+  //Load background texture
+  if(!gBackgroundTexture.loadFromFile("13_alpha_blending/fadein.png")){
+    printf("Failed to load background texture\n");
+    success= false;
   }
   return success;
 }
@@ -175,46 +200,35 @@ int main(int argc, char* argv[]){
     } else {
       bool quit = false;
 
-      Uint8 r = 255;
-      Uint8 g = 255;
-      Uint8 b = 255;
+      Uint8 a = 255;
       while(!quit){
         while(SDL_PollEvent(&event) != 0){
           if(event.type == SDL_QUIT){
             quit = true;
           } else if(event.type == SDL_KEYDOWN) {
-            switch(event.key.keysym.sym){
-              //Increase red
-              case SDLK_q:
-                r+=32;
-                break;
-              //Increase green
-              case SDLK_w:
-                g+=32;
-                break;
-              //Increase blue
-              case SDLK_e:
-                b+=32;
-                break;
-              //decrease red
-              case SDLK_a:
-                r-=32;
-                break;
-              //decrease green
-              case SDLK_s:
-                g-=32;
-                break;
-              //decrease blue
-              case SDLK_d:
-                b-=32;
-                break;
+            //increase alpha in w
+            if(event.key.keysym.sym == SDLK_w){
+              //cap if over 255
+              if(a + 32 > 255)
+              {
+                a = 255;
+              } else {
+                a += 32;
+              }
+            } else if(event.key.keysym.sym == SDLK_a){
+              if(a - 32 < 0){
+                a = 0;
+              } else {
+                a -= 32;
+              }
             }
           }
         }
         SDL_SetRenderDrawColor(renderer, 255,255,255,255);
         SDL_RenderClear(renderer);
         
-        gModulatedTexture.setColor(r, g, b);
+        gBackgroundTexture.render(0,0);
+        gModulatedTexture.setAlpha(a);
         gModulatedTexture.render(0,0);
   
         SDL_RenderPresent(renderer);
