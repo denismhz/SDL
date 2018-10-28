@@ -90,19 +90,20 @@ int main(int argc, char* argv[]){
             quit = true;
           }
         }
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        /*SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(renderer);
 
         SDL_Rect topRightViewport;
-        topRightViewport.x = SCREEN_WIDTH/2;
+        topRightViewport.x = 400;
         topRightViewport.y = 0;
         topRightViewport.w = SCREEN_WIDTH/2;
         topRightViewport.h = SCREEN_HEIGHT/2;
-        if(SDL_RenderSetViewport(renderer, &topRightViewport) != 0){
-          printf("Error: %s\n", SDL_GetError());
-        }
-        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+        SDL_RenderSetViewport(renderer, &topRightViewport);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderFillRect(renderer, &topRightViewport);
+        topRightViewport.x = 0;
+        topRightViewport.y = 0;
+        SDL_RenderSetViewport(renderer, NULL);
 
         SDL_Rect topLeftViewport;
         topLeftViewport.x = 0;
@@ -120,28 +121,32 @@ int main(int argc, char* argv[]){
         bottomViewport.h = SCREEN_HEIGHT/2;
         SDL_RenderSetViewport(renderer, &bottomViewport);
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderFillRect(renderer, &bottomViewport);
-        SDL_RenderDrawRect(renderer, &bottomViewport);
+        bottomViewport.x = 0;
+        bottomViewport.y = 0;
+        //SDL_RenderFillRect(renderer, &bottomViewport);
 
         SDL_Rect fillRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/4, 
           SCREEN_WIDTH, SCREEN_HEIGHT};
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 122);
-        SDL_RenderFillRect(renderer, &fillRect);
+        //SDL_RenderFillRect(renderer, &fillRect);
 
-        SDL_Rect outlineRect = {bottomViewport.x/6, bottomViewport.y/6,
-          bottomViewport.w*2/3, bottomViewport.h*2/3};
+        SDL_Rect outlineRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/4,
+          SCREEN_WIDTH, SCREEN_HEIGHT};
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderDrawRect(renderer, &outlineRect);
+        //SDL_RenderDrawRect(renderer, &outlineRect);
 
         SDL_SetRenderDrawColor(renderer, 0,0, 255, 255);
-        SDL_RenderDrawLine(renderer, 0, 0, 
-            bottomViewport.y*2, bottomViewport.x);
+        //SDL_RenderDrawLine(renderer, 0, SCREEN_HEIGHT/4, 
+            //SCREEN_WIDTH, SCREEN_HEIGHT/4);
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
         for(int i = 0; i < bottomViewport.w; i+=4){
-          SDL_RenderDrawPoint(renderer, bottomViewport.w/2, i);
+          //SDL_RenderDrawPoint(renderer, SCREEN_WIDTH/2, i);
         }
-
+        */
+        SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+        SDL_RenderClear(renderer);
+  
         SDL_RenderPresent(renderer);
       }
     }
